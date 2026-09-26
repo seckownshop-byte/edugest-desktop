@@ -1,0 +1,36 @@
+name: Build EduGest
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18.x'
+    
+    - name: Install dependencies
+      run: npm install --legacy-peer-deps
+    
+    - name: Initialize database
+      run: npm run db:migrate
+    
+    - name: Build
+      run: npm run build
+    
+    - name: Create installer
+      run: npm run dist
+    
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: EduGest-Installer
+        path: dist/EduGest-Setup-*.exe
